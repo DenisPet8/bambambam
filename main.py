@@ -208,7 +208,7 @@ async def reset_stats(request: Request):
     conn.commit()
     conn.close()
     return {"status": "ok"}
-
+#kzkzkz
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
