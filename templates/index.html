@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Puzzles</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="board-section">
+            <div id="board" style="width: 400px"></div>
+            <div id="message"></div>
+            <button id="next-btn">Next Puzzle</button>
+        </div>
+        <div class="stats-section">
+            <h2>Statistics</h2>
+            <div id="stats">
+                <p>Total: <span id="total">0</span></p>
+                <p>Correct: <span id="correct">0</span></p>
+                <p>Accuracy: <span id="accuracy">0</span>%</p>
+                <p>Current Streak: <span id="streak">0</span></p>
+                <p>Max Streak: <span id="max-streak">0</span></p>
+            </div>
+            <button id="reset-stats-btn">Reset Statistics</button>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
