@@ -10,6 +10,16 @@
 <body>
     <div class="container">
         <div class="board-section">
+            <div class="difficulty-row">
+                <label for="difficulty-select">Difficulty:</label>
+                <select id="difficulty-select">
+                    <option value="">All</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <span id="current-difficulty" class="badge"></span>
+            </div>
             <div id="board" style="width: 400px"></div>
             <div id="message"></div>
             <button id="next-btn">Next Puzzle</button>

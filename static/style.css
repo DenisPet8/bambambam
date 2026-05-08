@@ -72,3 +72,43 @@ button:hover {
 .incorrect {
     color: #f44336;
 }
+.difficulty-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.difficulty-row label {
+    font-size: 14px;
+}
+
+#difficulty-select {
+    padding: 6px;
+    background: #2d2d2d;
+    color: #d4d4d4;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.badge.easy {
+    background-color: #4caf50;
+}
+
+.badge.medium {
+    background-color: #ff9800;
+}
+
+.badge.hard {
+    background-color: #f44336;
+}

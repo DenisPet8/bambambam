@@ -3,7 +3,7 @@ import uuid
 import random
 import sqlite3
 import chess
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -12,6 +12,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 DB_PATH = "chess_puzzles.db"
+
+DIFFICULTY_MAP = {
+    chess.QUEEN: "easy",
+    chess.ROOK: "medium",
+    chess.BISHOP: "medium",
+    chess.KNIGHT: "hard"
+}
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -23,7 +30,8 @@ def init_db():
     conn.execute('''CREATE TABLE IF NOT EXISTS puzzles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         fen TEXT NOT NULL,
-        solution_moves TEXT NOT NULL
+        solution_moves TEXT NOT NULL,
+        difficulty TEXT NOT NULL
     )''')
     conn.execute('''CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
@@ -40,9 +48,9 @@ def init_db():
 
     cur = conn.execute("SELECT COUNT(*) FROM puzzles")
     if cur.fetchone()[0] == 0:
-        print("Generating 500 puzzles for the first start...")
+        print("Generating 500 puzzles with difficulties...")
         puzzles = generate_puzzles(500)
-        conn.executemany("INSERT INTO puzzles (fen, solution_moves) VALUES (?, ?)", puzzles)
+        conn.executemany("INSERT INTO puzzles (fen, solution_moves, difficulty) VALUES (?, ?, ?)", puzzles)
         print("Puzzles generated.")
     conn.commit()
     conn.close()
@@ -78,7 +86,8 @@ def generate_puzzles(num: int):
             if len(mates) == 1:
                 fen = board.fen()
                 if fen not in seen_fens:
-                    puzzles.append((fen, mates[0].uci()))
+                    difficulty = DIFFICULTY_MAP.get(piece_type, "medium")
+                    puzzles.append((fen, mates[0].uci(), difficulty))
                     seen_fens.add(fen)
         except Exception:
             continue
@@ -111,16 +120,23 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/api/puzzle/next")
-async def next_puzzle(request: Request):
+async def next_puzzle(request: Request, difficulty: str = Query(None)):
     get_or_create_user(request.state.user_id)
     conn = get_db()
-    cur = conn.execute("SELECT id, fen FROM puzzles ORDER BY RANDOM() LIMIT 1")
+    if difficulty and difficulty in ["easy", "medium", "hard"]:
+        cur = conn.execute(
+            "SELECT id, fen, difficulty FROM puzzles WHERE difficulty=? ORDER BY RANDOM() LIMIT 1",
+            (difficulty,)
+        )
+    else:
+        cur = conn.execute("SELECT id, fen, difficulty FROM puzzles ORDER BY RANDOM() LIMIT 1")
     row = cur.fetchone()
     conn.close()
     if not row:
-        raise HTTPException(404, "No puzzles found")
-    return {"id": row["id"], "fen": row["fen"]}
+        raise HTTPException(404, "No puzzles found for the given difficulty")
+    return {"id": row["id"], "fen": row["fen"], "difficulty": row["difficulty"]}
 
+# Остальные эндпоинты без изменений (check, stats, reset-stats)
 @app.post("/api/puzzle/check")
 async def check_puzzle(request: Request):
     user_id = request.state.user_id

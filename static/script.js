@@ -12,8 +12,14 @@ $(document).ready(function() {
         pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
     });
 
+    // Load initial puzzle with default difficulty (All)
     loadNextPuzzle();
     loadStats();
+
+    // Load new puzzle when difficulty changes
+    $('#difficulty-select').change(function() {
+        loadNextPuzzle();
+    });
 
     $('#next-btn').click(function() {
         loadNextPuzzle();
@@ -31,16 +37,28 @@ $(document).ready(function() {
 });
 
 function loadNextPuzzle() {
-    $.getJSON('/api/puzzle/next', function(data) {
+    const diff = $('#difficulty-select').val();
+    const url = diff ? `/api/puzzle/next?difficulty=${diff}` : '/api/puzzle/next';
+
+    $.getJSON(url, function(data) {
         currentPuzzleId = data.id;
         game.load(data.fen);
         board.position(data.fen);
         puzzleSolved = false;
         pending = false;
         $('#message').text('').removeClass('correct incorrect');
+
+        // Display current difficulty as a badge
+        const diffText = data.difficulty.charAt(0).toUpperCase() + data.difficulty.slice(1);
+        $('#current-difficulty').text(diffText)
+            .removeClass('easy medium hard')
+            .addClass(data.difficulty);
+    }).fail(function() {
+        alert('Failed to load puzzle. Please try another difficulty.');
     });
 }
 
+// ... onDrop and loadStats remain identical to earlier version ...
 function onDrop(source, target, piece, newPos, oldPos, orientation) {
     if (puzzleSolved || pending) {
         return 'snapback';
